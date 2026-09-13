@@ -92,6 +92,7 @@ export function AddItemForm() {
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
     setIsSaving(true);
     setMessage(null);
     try {
@@ -102,7 +103,7 @@ export function AddItemForm() {
       if (typeof userId !== "string") throw new Error("Your session has expired. Please sign in again.");
       const { error } = await supabase.from("clothing_items").insert({ user_id: userId, name, category, color: color || null, image_path: path, seasons: analysis?.seasons ?? [], occasions: analysis?.occasions ?? [], ai_metadata: analysis ?? {} });
       if (error) throw new Error(error.message);
-      event.currentTarget.reset();
+      form.reset();
       setFile(null); setImagePath(null); setName(""); setCategory("top"); setColor(""); setAnalysis(null);
       router.refresh();
     } catch (error) {
