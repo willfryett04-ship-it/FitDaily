@@ -2,6 +2,8 @@
 
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Capacitor } from "@capacitor/core";
+import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 
@@ -26,6 +28,27 @@ export function AddItemForm() {
     setImagePath(null);
     setAnalysis(null);
     setMessage(null);
+  }
+
+  async function takePhoto() {
+    setMessage(null);
+    try {
+      const photo = await Camera.getPhoto({
+        quality: 85,
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Prompt,
+      });
+      if (!photo.webPath) throw new Error("We could not use that photo.");
+
+      const response = await fetch(photo.webPath);
+      const blob = await response.blob();
+      setFile(new File([blob], `wardrobe-${Date.now()}.jpg`, { type: blob.type || "image/jpeg" }));
+      setImagePath(null);
+      setAnalysis(null);
+    } catch (error) {
+      // Closing the native camera sheet is not an error worth showing to the user.
+      if (error instanceof Error && !/cancel/i.test(error.message)) setMessage(error.message);
+    }
   }
 
   async function uploadImage() {
@@ -91,7 +114,7 @@ export function AddItemForm() {
 
   return (
     <form onSubmit={save} className="grid gap-4 rounded-3xl border border-[#e5ddd5] bg-[#fcfbf9] p-6 sm:grid-cols-2">
-      <label className="sm:col-span-2"><span className="mb-2 block text-sm font-medium">Clothing photo</span><input onChange={chooseFile} accept="image/jpeg,image/png,image/webp" type="file" required className="block w-full text-sm" />{file && <span className="mt-2 block text-sm text-[#6f655d]">{file.name}</span>}</label>
+      <label className="sm:col-span-2"><span className="mb-2 block text-sm font-medium">Clothing photo</span><input onChange={chooseFile} accept="image/jpeg,image/png,image/webp" type="file" className="block w-full text-sm" />{Capacitor.isNativePlatform() && <Button type="button" onClick={takePhoto} variant="outline" className="mt-3 rounded-xl">Take or choose a photo</Button>}{file && <span className="mt-2 block text-sm text-[#6f655d]">{file.name}</span>}</label>
       <div className="sm:col-span-2"><Button type="button" onClick={analyse} disabled={!file || isAnalysing || isSaving} variant="outline" className="rounded-xl">{isAnalysing ? "Analysing…" : "✨ Suggest details with AI"}</Button></div>
       {analysis && <p className="sm:col-span-2 rounded-xl bg-[#efe9e1] p-3 text-sm text-[#544b43]">{analysis.description}</p>}
       <label><span className="mb-2 block text-sm font-medium">Name</span><input value={name} onChange={(event) => setName(event.target.value)} required maxLength={120} placeholder="Black linen shirt" className="h-11 w-full rounded-xl border border-[#d7cec5] bg-white px-3" /></label>
