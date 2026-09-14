@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { GenerateOutfit } from "@/components/outfits/generate-outfit";
 import { WearButton } from "@/components/outfits/wear-button";
+import { ShareOutfitButton } from "@/components/outfits/share-outfit-button";
 import { createClient } from "@/lib/supabase/server";
 
 type ClothingItem = { id: string; name: string; category: string; color: string | null; image_path: string | null };
@@ -53,6 +54,7 @@ export default async function OutfitsPage() {
                   <p className="mt-2 text-sm leading-6 text-[#62594f]">{outfit.explanation}</p>
                   {!!pieces.length && <ul className="mt-4 flex flex-wrap gap-2">{pieces.map((item) => <li key={item.id} className="rounded-full bg-[#f1ece6] px-3 py-1 text-xs text-[#544b43]">{item.name}</li>)}</ul>}
                   <WearButton outfitId={outfit.id} initialWearId={outfit.outfit_wears?.find((wear) => wear.worn_on === new Date().toISOString().slice(0, 10))?.id ?? null} />
+                  <ShareOutfitButton title={outfit.title} occasion={outfit.occasion} pieces={pieces.map((item) => item.name)} />
                 </div>
               </article>
             );
