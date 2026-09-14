@@ -24,7 +24,7 @@ export default async function Home() {
         </div>
       </section>
       <footer className="mx-auto flex w-full max-w-6xl items-center justify-between border-t border-[#e6dfd8] pt-5 text-sm text-[#83776c]">
-        <span>Made for your real life.</span><span>Phase 1 · Foundation</span>
+        <span>Your wardrobe. Styled by AI.</span><span>Made for your real life.</span>
       </footer>
     </main>
   );
