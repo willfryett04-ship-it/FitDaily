@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 
@@ -12,6 +12,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const isSignUp = mode === "sign-up";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -47,8 +48,17 @@ export function AuthForm({ mode }: AuthFormProps) {
     router.refresh();
   }
 
+  async function resetPassword() {
+    if (!formRef.current) return;
+    const email = String(new FormData(formRef.current).get("email") ?? "").trim();
+    if (!email) { setMessage("Enter your email address first, then choose Forgot password."); return; }
+    setIsLoading(true); setMessage(null);
+    const { error } = await createClient().auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+    setIsLoading(false); setMessage(error ? error.message : "Check your email for a secure password-reset link.");
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="w-full space-y-5" noValidate>
+    <form ref={formRef} onSubmit={handleSubmit} className="w-full space-y-5" noValidate>
       <label className="block space-y-2 text-sm font-medium">
         <span>Email address</span>
         <input name="email" type="email" required autoComplete="email" placeholder="you@example.com" className="h-12 w-full rounded-xl border border-[#d7cec5] bg-white px-4 outline-none ring-[#302a25] focus:ring-2" />
@@ -61,6 +71,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <Button type="submit" size="lg" disabled={isLoading} className="w-full rounded-xl bg-[#302a25] text-white hover:bg-[#4a4037]">
         {isLoading ? "Please wait…" : isSignUp ? "Create account" : "Sign in"}
       </Button>
+      {!isSignUp && <button type="button" disabled={isLoading} onClick={resetPassword} className="w-full text-center text-sm font-medium text-[#62594f] underline underline-offset-4">Forgot password?</button>}
       <p className="text-center text-sm text-[#6f655d]">
         {isSignUp ? "Already have an account?" : "New to Fit Daily?"}{" "}
         <Link href={isSignUp ? "/login" : "/sign-up"} className="font-semibold text-[#302a25] underline underline-offset-4">
