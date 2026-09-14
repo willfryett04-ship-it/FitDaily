@@ -34,7 +34,7 @@ export default async function WardrobePage() {
 
   return (
     <main className="min-h-screen bg-[#f8f7f4] px-6 py-8 text-[#201d1a] sm:px-10">
-      <header className="mx-auto flex max-w-5xl items-center justify-between"><Link href="/dashboard" className="text-xl font-semibold tracking-tight">fit daily</Link><Button asChild variant="outline"><Link href="/dashboard">Dashboard</Link></Button></header>
+      <header className="mx-auto flex max-w-5xl items-center justify-between"><Link href="/dashboard" className="text-xl font-semibold tracking-tight">Style Set</Link><Button asChild variant="outline"><Link href="/dashboard">Dashboard</Link></Button></header>
       <section className="mx-auto max-w-5xl py-14"><p className="text-sm font-medium text-[#766b61]">DIGITAL WARDROBE</p><h1 className="mt-3 text-5xl font-semibold tracking-[-0.04em]">Everything you own, in one place.</h1><p className="mt-5 max-w-2xl text-lg leading-8 text-[#6f655d]">Start with a few favourites. We’ll use these pieces to build your first recommendations.</p><div className="mt-10"><AddItemForm /></div>
         <WardrobeGallery initialItems={galleryItems} />
       </section>

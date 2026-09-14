@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 export function ShareOutfitButton({ title, occasion, pieces }: { title: string; occasion: string; pieces: string[] }) {
   const [message, setMessage] = useState<string | null>(null);
   async function share() {
-    const text = `My Fit Daily look: ${title} for ${occasion}. ${pieces.join(", ")}.`;
+    const text = `My Style Set look: ${title} for ${occasion}. ${pieces.join(", ")}.`;
     try {
-      if (typeof navigator.share === "function") await navigator.share({ title: "My Fit Daily look", text });
+      if (typeof navigator.share === "function") await navigator.share({ title: "My Style Set look", text });
       else await navigator.clipboard.writeText(text);
       setMessage(typeof navigator.share === "function" ? "Ready to share." : "Look copied to your clipboard.");
     } catch { setMessage(null); }

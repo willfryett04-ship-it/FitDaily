@@ -27,7 +27,7 @@ export default async function PlannerPage() {
 
   return (
     <main className="min-h-screen bg-[#f8f7f4] px-6 py-8 text-[#201d1a] sm:px-10">
-      <header className="mx-auto flex max-w-5xl items-center justify-between"><Link href="/dashboard" className="text-xl font-semibold tracking-tight">fit daily</Link><Button asChild variant="outline"><Link href="/outfits">AI Stylist</Link></Button></header>
+      <header className="mx-auto flex max-w-5xl items-center justify-between"><Link href="/dashboard" className="text-xl font-semibold tracking-tight">Style Set</Link><Button asChild variant="outline"><Link href="/outfits">AI Stylist</Link></Button></header>
       <section className="mx-auto max-w-5xl py-14"><p className="text-sm font-medium text-[#766b61]">OUTFIT PLANNER {isPremium ? "· PREMIUM" : ""}</p><h1 className="mt-3 text-5xl font-semibold tracking-[-0.04em]">Make getting dressed one less decision.</h1><p className="mt-5 max-w-2xl text-lg leading-8 text-[#6f655d]">Plan the saved looks you want to wear, then come back to a calmer morning.</p><OutfitPlanner outfits={outfits} initialPlans={plans} defaultDate={defaultDate} isPremium={isPremium} /></section>
     </main>
   );

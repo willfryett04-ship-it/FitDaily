@@ -36,7 +36,7 @@ export default async function DashboardPage() {
   return (
     <main className="min-h-screen bg-[#f8f7f4] px-6 py-8 text-[#201d1a] sm:px-10">
       <header className="mx-auto flex max-w-5xl items-center justify-between">
-        <span className="text-xl font-semibold tracking-tight">fit daily</span>
+        <span className="text-xl font-semibold tracking-tight">Style Set</span>
         <div className="flex flex-wrap items-center justify-end gap-2"><Button asChild variant="outline" className="rounded-xl"><a href="/stylist">AI Stylist</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/planner">Planner</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/packing">Packing</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/capsule">Capsule</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/palette">Palette</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/insights">Insights</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/profile">Profile</a></Button><SignOutButton /></div>
       </header>
 
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
           <div>
             <p className="text-xs font-medium tracking-[0.14em] text-[#766b61]">NEXT STEP</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em]">{itemCount < 3 ? "Add a few more favourites." : "Ask your stylist for a fresh look."}</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[#6f655d]">{itemCount < 3 ? "Three or more pieces give Fit Daily more interesting combinations to work with." : "Choose an occasion and get a look made only from what you own."}</p>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-[#6f655d]">{itemCount < 3 ? "Three or more pieces give Style Set more interesting combinations to work with." : "Choose an occasion and get a look made only from what you own."}</p>
           </div>
           <Button asChild className="mt-6 shrink-0 rounded-xl bg-[#302a25] text-white hover:bg-[#4a4037] sm:mt-0">
             <a href={itemCount < 3 ? "/wardrobe" : "/outfits"}>{itemCount < 3 ? "Add to wardrobe" : "Create an outfit"}</a>

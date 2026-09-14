@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
   if (typeof userId !== "string") return NextResponse.json({ error: "Please sign in again." }, { status: 401 });
 
   const { data: subscription } = await supabase.from("subscriptions").select("status").eq("user_id", userId).maybeSingle();
-  if (subscription?.status !== "active" && subscription?.status !== "trialing") return NextResponse.json({ error: "Capsule Wardrobes are included with Fit Daily Premium." }, { status: 403 });
+  if (subscription?.status !== "active" && subscription?.status !== "trialing") return NextResponse.json({ error: "Capsule Wardrobes are included with Style Set Premium." }, { status: 403 });
 
   const { data } = await supabase.from("clothing_items").select("id, name, category, color, seasons, occasions");
   if (!data?.length) return NextResponse.json({ error: "Add wardrobe items before building a capsule." }, { status: 422 });

@@ -73,7 +73,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       </Button>
       {!isSignUp && <button type="button" disabled={isLoading} onClick={resetPassword} className="w-full text-center text-sm font-medium text-[#62594f] underline underline-offset-4">Forgot password?</button>}
       <p className="text-center text-sm text-[#6f655d]">
-        {isSignUp ? "Already have an account?" : "New to Fit Daily?"}{" "}
+        {isSignUp ? "Already have an account?" : "New to Style Set?"}{" "}
         <Link href={isSignUp ? "/login" : "/sign-up"} className="font-semibold text-[#302a25] underline underline-offset-4">
           {isSignUp ? "Sign in" : "Create one"}
         </Link>

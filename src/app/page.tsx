@@ -11,7 +11,7 @@ export default async function Home() {
   return (
     <main className="flex flex-1 flex-col bg-[#f8f7f4] px-6 py-8 text-[#201d1a] sm:px-10 lg:px-16">
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between">
-        <span className="text-xl font-semibold tracking-tight">fit daily</span>
+        <span className="text-xl font-semibold tracking-tight">Style Set</span>
         <Button asChild variant="outline" className="rounded-full bg-white"><Link href="/login">Sign in</Link></Button>
       </nav>
       <section className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center py-20 text-center">

@@ -2,7 +2,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "com.fitdaily.app",
-  appName: "Fit Daily",
+  appName: "Style Set",
   webDir: "public",
   server: {
     // The iPhone test build uses the deployed web app, so changes published to

@@ -9,7 +9,7 @@ type Message = { role: "user" | "assistant"; content: string };
 const prompts = ["What should I wear for dinner tonight?", "How can I make this look smarter?", "What should I pack for a weekend away?"];
 
 export function StylistChat({ isPremium }: { isPremium: boolean }) {
-  const [messages, setMessages] = useState<Message[]>([{ role: "assistant", content: "Hi — I’m your Fit Daily stylist. Ask me what to wear, how to style a piece, or what to pack." }]);
+  const [messages, setMessages] = useState<Message[]>([{ role: "assistant", content: "Hi — I’m your Style Set stylist. Ask me what to wear, how to style a piece, or what to pack." }]);
   const [question, setQuestion] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);

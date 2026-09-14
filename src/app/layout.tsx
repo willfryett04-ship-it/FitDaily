@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Fit Daily", template: "%s | Fit Daily" },
+  title: { default: "Style Set", template: "%s | Style Set" },
   description: "Your AI personal stylist for the clothes you already own.",
 };
 

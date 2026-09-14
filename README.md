@@ -1,4 +1,4 @@
-# Fit Daily
+# Style Set
 
 An AI wardrobe assistant that helps people organize their clothing and choose outfits with confidence.
 
