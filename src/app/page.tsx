@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  if (data?.claims) redirect("/dashboard");
+
   return (
     <main className="flex flex-1 flex-col bg-[#f8f7f4] px-6 py-8 text-[#201d1a] sm:px-10 lg:px-16">
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between">
