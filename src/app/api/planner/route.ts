@@ -12,6 +12,8 @@ export async function POST(request: NextRequest) {
   const { data: auth } = await supabase.auth.getClaims();
   const userId = auth?.claims?.sub;
   if (typeof userId !== "string") return NextResponse.json({ error: "Please sign in again." }, { status: 401 });
+  const { data: subscription } = await supabase.from("subscriptions").select("status").eq("user_id", userId).maybeSingle();
+  if (subscription?.status !== "active" && subscription?.status !== "trialing") return NextResponse.json({ error: "The outfit planner is included with Fit Daily Premium." }, { status: 403 });
 
   const { data: outfit } = await supabase.from("outfits").select("id").eq("id", payload.data.outfitId).maybeSingle();
   if (!outfit) return NextResponse.json({ error: "That saved outfit is not available." }, { status: 404 });
@@ -31,6 +33,8 @@ export async function DELETE(request: NextRequest) {
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getClaims();
   if (!auth?.claims?.sub) return NextResponse.json({ error: "Please sign in again." }, { status: 401 });
+  const { data: subscription } = await supabase.from("subscriptions").select("status").eq("user_id", auth.claims.sub).maybeSingle();
+  if (subscription?.status !== "active" && subscription?.status !== "trialing") return NextResponse.json({ error: "The outfit planner is included with Fit Daily Premium." }, { status: 403 });
   const { data: deleted, error } = await supabase.from("planned_outfits").delete().eq("id", payload.data.id).select("id").maybeSingle();
   if (error) return NextResponse.json({ error: "We could not remove this plan." }, { status: 500 });
   if (!deleted) return NextResponse.json({ error: "This planned outfit is no longer available." }, { status: 404 });

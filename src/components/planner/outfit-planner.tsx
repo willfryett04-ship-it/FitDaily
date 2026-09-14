@@ -3,11 +3,12 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export type PlannerOutfit = { id: string; title: string; occasion: string };
 export type PlannedOutfit = { id: string; outfitId: string; plannedFor: string; outfit: PlannerOutfit };
 
-export function OutfitPlanner({ outfits, initialPlans, defaultDate }: { outfits: PlannerOutfit[]; initialPlans: PlannedOutfit[]; defaultDate: string }) {
+export function OutfitPlanner({ outfits, initialPlans, defaultDate, isPremium }: { outfits: PlannerOutfit[]; initialPlans: PlannedOutfit[]; defaultDate: string; isPremium: boolean }) {
   const router = useRouter();
   const [plans, setPlans] = useState(initialPlans);
   const [outfitId, setOutfitId] = useState(outfits[0]?.id ?? "");
@@ -55,6 +56,7 @@ export function OutfitPlanner({ outfits, initialPlans, defaultDate }: { outfits:
     }
   }
 
+  if (!isPremium) return <section className="mt-10 rounded-3xl border border-[#e5ddd5] bg-[#fcfbf9] p-7"><p className="text-sm font-medium text-[#766b61]">PREMIUM FEATURE</p><h2 className="mt-3 text-2xl font-semibold">Plan the week ahead with confidence.</h2><p className="mt-3 max-w-lg leading-7 text-[#6f655d]">Premium unlocks the outfit planner, so your saved looks are ready when your morning is busy.</p><Button asChild className="mt-6 rounded-xl bg-[#302a25] text-white hover:bg-[#4a4037]"><Link href="/premium">Explore Premium</Link></Button></section>;
   if (!outfits.length) return <p className="mt-10 rounded-3xl border border-dashed border-[#cfc5bb] p-10 text-center text-[#6f655d]">Create a saved outfit with your AI stylist before adding it to the planner.</p>;
 
   return (
