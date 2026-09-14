@@ -37,7 +37,7 @@ export default async function DashboardPage() {
     <main className="min-h-screen bg-[#f8f7f4] px-6 py-8 text-[#201d1a] sm:px-10">
       <header className="mx-auto flex max-w-5xl items-center justify-between">
         <span className="text-xl font-semibold tracking-tight">fit daily</span>
-        <div className="flex flex-wrap items-center justify-end gap-2"><Button asChild variant="outline" className="rounded-xl"><a href="/stylist">AI Stylist</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/planner">Planner</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/packing">Packing</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/profile">Profile</a></Button><SignOutButton /></div>
+        <div className="flex flex-wrap items-center justify-end gap-2"><Button asChild variant="outline" className="rounded-xl"><a href="/stylist">AI Stylist</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/planner">Planner</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/packing">Packing</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/palette">Palette</a></Button><Button asChild variant="outline" className="rounded-xl"><a href="/profile">Profile</a></Button><SignOutButton /></div>
       </header>
 
       <section className="mx-auto max-w-5xl py-16 sm:py-20">
