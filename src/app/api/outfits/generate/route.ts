@@ -19,7 +19,7 @@ const outfitSchema = z.object({
   item_ids: z.array(z.string().uuid()).min(2).max(5),
 });
 
-type ClothingItem = { id: string; name: string; category: string; color: string | null; seasons: string[]; occasions: string[] };
+type ClothingItem = { id: string; name: string; category: string; color: string | null; seasons: string[]; occasions: string[]; is_in_laundry: boolean };
 
 export async function POST(request: NextRequest) {
   if (!process.env.OPENAI_API_KEY) return NextResponse.json({ error: "AI styling is not configured." }, { status: 503 });
@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
   const userId = auth?.claims?.sub;
   if (typeof userId !== "string") return NextResponse.json({ error: "Please sign in again." }, { status: 401 });
 
-  const { data } = await supabase.from("clothing_items").select("id, name, category, color, seasons, occasions").order("created_at", { ascending: false });
-  const wardrobe = (data ?? []) as ClothingItem[];
+  const { data } = await supabase.from("clothing_items").select("id, name, category, color, seasons, occasions, is_in_laundry").order("created_at", { ascending: false });
+  const wardrobe = ((data ?? []) as ClothingItem[]).filter((item) => !item.is_in_laundry);
   if (wardrobe.length < 2) return NextResponse.json({ error: "Add at least two wardrobe items first." }, { status: 422 });
   const { data: profile } = await supabase.from("profiles").select("style_preferences, favorite_colors, style_vibes, avoid_items").maybeSingle();
 

@@ -5,7 +5,7 @@ import { WardrobeGallery, type WardrobeItem } from "@/components/wardrobe/wardro
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 
-type ClothingItem = { id: string; name: string; category: string; color: string | null; image_path: string | null; is_favorite: boolean };
+type ClothingItem = { id: string; name: string; category: string; color: string | null; image_path: string | null; is_favorite: boolean; is_in_laundry: boolean };
 
 export const metadata = { title: "Wardrobe" };
 
@@ -13,7 +13,7 @@ export default async function WardrobePage() {
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getClaims();
   if (!auth?.claims) redirect("/login");
-  const { data } = await supabase.from("clothing_items").select("id, name, category, color, image_path, is_favorite").order("created_at", { ascending: false });
+  const { data } = await supabase.from("clothing_items").select("id, name, category, color, image_path, is_favorite, is_in_laundry").order("created_at", { ascending: false });
   const items = (data ?? []) as ClothingItem[];
   const imageUrls = await Promise.all(items.map(async (item) => {
     if (!item.image_path) return [item.id, null] as const;
@@ -29,6 +29,7 @@ export default async function WardrobePage() {
     imagePath: item.image_path,
     imageUrl: images.get(item.id) ?? null,
     isFavorite: item.is_favorite,
+    isInLaundry: item.is_in_laundry,
   }));
 
   return (

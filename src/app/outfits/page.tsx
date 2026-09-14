@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { GenerateOutfit } from "@/components/outfits/generate-outfit";
 import { WearButton } from "@/components/outfits/wear-button";
 import { ShareOutfitButton } from "@/components/outfits/share-outfit-button";
+import { OutfitFeedback } from "@/components/outfits/outfit-feedback";
 import { createClient } from "@/lib/supabase/server";
 
 type ClothingItem = { id: string; name: string; category: string; color: string | null; image_path: string | null };
 type OutfitItem = { position: number; clothing_items: ClothingItem[] };
-type OutfitHistory = { id: string; title: string; occasion: string; explanation: string; created_at: string; outfit_items: OutfitItem[] | null; outfit_wears: Array<{ id: string; worn_on: string }> | null };
+type OutfitHistory = { id: string; title: string; occasion: string; explanation: string; feedback: "loved" | "not_for_me" | null; created_at: string; outfit_items: OutfitItem[] | null; outfit_wears: Array<{ id: string; worn_on: string }> | null };
 export const metadata = { title: "Outfits" };
 
 export default async function OutfitsPage() {
@@ -18,7 +19,7 @@ export default async function OutfitsPage() {
   if (!auth?.claims) redirect("/login");
   const { data } = await supabase
     .from("outfits")
-    .select("id, title, occasion, explanation, created_at, outfit_items(position, clothing_items(id, name, category, color, image_path)), outfit_wears(id, worn_on)")
+    .select("id, title, occasion, explanation, feedback, created_at, outfit_items(position, clothing_items(id, name, category, color, image_path)), outfit_wears(id, worn_on)")
     .order("created_at", { ascending: false });
   const history = (data ?? []) as OutfitHistory[];
   const outfitItems = history.flatMap((outfit) => (outfit.outfit_items ?? []).flatMap((item) => item.clothing_items));
@@ -55,6 +56,7 @@ export default async function OutfitsPage() {
                   {!!pieces.length && <ul className="mt-4 flex flex-wrap gap-2">{pieces.map((item) => <li key={item.id} className="rounded-full bg-[#f1ece6] px-3 py-1 text-xs text-[#544b43]">{item.name}</li>)}</ul>}
                   <WearButton outfitId={outfit.id} initialWearId={outfit.outfit_wears?.find((wear) => wear.worn_on === new Date().toISOString().slice(0, 10))?.id ?? null} />
                   <ShareOutfitButton title={outfit.title} occasion={outfit.occasion} pieces={pieces.map((item) => item.name)} />
+                  <OutfitFeedback outfitId={outfit.id} initialFeedback={outfit.feedback} />
                 </div>
               </article>
             );

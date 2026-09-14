@@ -17,18 +17,21 @@ export type WardrobeItem = {
   imagePath: string | null;
   imageUrl: string | null;
   isFavorite: boolean;
+  isInLaundry: boolean;
 };
 
 export function WardrobeGallery({ initialItems }: { initialItems: WardrobeItem[] }) {
   const router = useRouter();
   const [items, setItems] = useState(initialItems);
   const [selectedCategory, setSelectedCategory] = useState<Category>("all");
+  const [search, setSearch] = useState("");
+  const [showLaundry, setShowLaundry] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [updatingFavoriteId, setUpdatingFavoriteId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const visibleItems = useMemo(
-    () => selectedCategory === "all" ? items : items.filter((item) => item.category === selectedCategory),
-    [items, selectedCategory],
+    () => items.filter((item) => (selectedCategory === "all" || item.category === selectedCategory) && (showLaundry || !item.isInLaundry) && item.name.toLowerCase().includes(search.toLowerCase())),
+    [items, selectedCategory, showLaundry, search],
   );
 
   async function removeItem(item: WardrobeItem) {
@@ -72,6 +75,11 @@ export function WardrobeGallery({ initialItems }: { initialItems: WardrobeItem[]
     }
   }
 
+  async function toggleLaundry(item: WardrobeItem) {
+    setUpdatingFavoriteId(item.id); setMessage(null);
+    try { const response = await fetch("/api/wardrobe/item", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, isInLaundry: !item.isInLaundry }) }); const result = await response.json(); if (!response.ok) throw new Error(result.error || "We could not update this item."); setItems((current) => current.map((currentItem) => currentItem.id === item.id ? { ...currentItem, isInLaundry: result.is_in_laundry } : currentItem)); router.refresh(); } catch (error) { setMessage(error instanceof Error ? error.message : "We could not update this item."); } finally { setUpdatingFavoriteId(null); }
+  }
+
   return (
     <section className="mt-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -92,6 +100,7 @@ export function WardrobeGallery({ initialItems }: { initialItems: WardrobeItem[]
             </button>
           ))}
         </div>
+        <div className="mt-3 flex flex-wrap gap-2"><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search your wardrobe" className="h-10 rounded-xl border border-[#d7cec5] bg-white px-3 text-sm" /><button type="button" onClick={() => setShowLaundry((current) => !current)} className={`rounded-xl border px-3 text-sm ${showLaundry ? "border-[#302a25] bg-[#302a25] text-white" : "border-[#d7cec5] bg-white"}`}>{showLaundry ? "Hide laundry" : "Show laundry"}</button></div>
       </div>
 
       {message && <p role="status" className="mt-5 rounded-xl bg-[#f2e5e2] p-3 text-sm text-[#74443c]">{message}</p>}
@@ -100,8 +109,8 @@ export function WardrobeGallery({ initialItems }: { initialItems: WardrobeItem[]
           <article key={item.id} className="overflow-hidden rounded-3xl border border-[#e5ddd5] bg-[#fcfbf9]">
             {item.imageUrl ? <Image unoptimized src={item.imageUrl} alt={item.name} width={600} height={600} className="aspect-square w-full object-cover" /> : <div className="aspect-square bg-[#eee8e2]" aria-label={`${item.name} has no image`} />}
             <div className="flex items-start justify-between gap-3 p-5">
-              <div><p className="text-lg font-semibold">{item.name}</p><p className="mt-1 text-sm capitalize text-[#6f655d]">{[item.category, item.color].filter(Boolean).join(" · ")}</p></div>
-              <div className="flex gap-1"><Button type="button" variant="ghost" size="icon" aria-label={item.isFavorite ? `Remove ${item.name} from favourites` : `Add ${item.name} to favourites`} className={item.isFavorite ? "rounded-xl text-[#9b5147] hover:bg-[#f5e7e4] hover:text-[#713a32]" : "rounded-xl text-[#766b61] hover:bg-[#eee8e2]"} onClick={() => toggleFavorite(item)} disabled={updatingFavoriteId === item.id}><Heart fill={item.isFavorite ? "currentColor" : "none"} /></Button><Button type="button" variant="ghost" className="rounded-xl text-[#8a4f46] hover:bg-[#f5e7e4] hover:text-[#713a32]" onClick={() => removeItem(item)} disabled={removingId === item.id}>{removingId === item.id ? "Removing…" : "Remove"}</Button></div>
+              <div><p className="text-lg font-semibold">{item.name}</p><p className="mt-1 text-sm capitalize text-[#6f655d]">{[item.category, item.color].filter(Boolean).join(" · ")}</p>{item.isInLaundry && <p className="mt-2 text-xs font-medium text-[#8a6240]">In the wash</p>}</div>
+              <div className="flex gap-1"><Button type="button" variant="ghost" size="icon" aria-label={item.isFavorite ? `Remove ${item.name} from favourites` : `Add ${item.name} to favourites`} className={item.isFavorite ? "rounded-xl text-[#9b5147] hover:bg-[#f5e7e4] hover:text-[#713a32]" : "rounded-xl text-[#766b61] hover:bg-[#eee8e2]"} onClick={() => toggleFavorite(item)} disabled={updatingFavoriteId === item.id}><Heart fill={item.isFavorite ? "currentColor" : "none"} /></Button><Button type="button" variant="ghost" className="rounded-xl text-xs" onClick={() => toggleLaundry(item)} disabled={updatingFavoriteId === item.id}>{item.isInLaundry ? "Clean" : "Wash"}</Button><Button type="button" variant="ghost" className="rounded-xl text-[#8a4f46] hover:bg-[#f5e7e4] hover:text-[#713a32]" onClick={() => removeItem(item)} disabled={removingId === item.id}>{removingId === item.id ? "Removing…" : "Remove"}</Button></div>
             </div>
           </article>
         ))}
