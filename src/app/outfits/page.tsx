@@ -3,11 +3,12 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { GenerateOutfit } from "@/components/outfits/generate-outfit";
+import { WearButton } from "@/components/outfits/wear-button";
 import { createClient } from "@/lib/supabase/server";
 
 type ClothingItem = { id: string; name: string; category: string; color: string | null; image_path: string | null };
 type OutfitItem = { position: number; clothing_items: ClothingItem[] };
-type OutfitHistory = { id: string; title: string; occasion: string; explanation: string; created_at: string; outfit_items: OutfitItem[] | null };
+type OutfitHistory = { id: string; title: string; occasion: string; explanation: string; created_at: string; outfit_items: OutfitItem[] | null; outfit_wears: Array<{ id: string; worn_on: string }> | null };
 export const metadata = { title: "Outfits" };
 
 export default async function OutfitsPage() {
@@ -16,7 +17,7 @@ export default async function OutfitsPage() {
   if (!auth?.claims) redirect("/login");
   const { data } = await supabase
     .from("outfits")
-    .select("id, title, occasion, explanation, created_at, outfit_items(position, clothing_items(id, name, category, color, image_path))")
+    .select("id, title, occasion, explanation, created_at, outfit_items(position, clothing_items(id, name, category, color, image_path)), outfit_wears(id, worn_on)")
     .order("created_at", { ascending: false });
   const history = (data ?? []) as OutfitHistory[];
   const outfitItems = history.flatMap((outfit) => (outfit.outfit_items ?? []).flatMap((item) => item.clothing_items));
@@ -51,6 +52,7 @@ export default async function OutfitsPage() {
                   <h3 className="mt-2 text-lg font-semibold">{outfit.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-[#62594f]">{outfit.explanation}</p>
                   {!!pieces.length && <ul className="mt-4 flex flex-wrap gap-2">{pieces.map((item) => <li key={item.id} className="rounded-full bg-[#f1ece6] px-3 py-1 text-xs text-[#544b43]">{item.name}</li>)}</ul>}
+                  <WearButton outfitId={outfit.id} initialWearId={outfit.outfit_wears?.find((wear) => wear.worn_on === new Date().toISOString().slice(0, 10))?.id ?? null} />
                 </div>
               </article>
             );
