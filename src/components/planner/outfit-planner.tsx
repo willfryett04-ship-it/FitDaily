@@ -16,6 +16,7 @@ export function OutfitPlanner({ outfits, initialPlans, defaultDate, isPremium }:
   const [message, setMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [isFillingWeek, setIsFillingWeek] = useState(false);
   const outfitById = useMemo(() => new Map(outfits.map((outfit) => [outfit.id, outfit])), [outfits]);
 
   async function savePlan(event: FormEvent<HTMLFormElement>) {
@@ -56,6 +57,11 @@ export function OutfitPlanner({ outfits, initialPlans, defaultDate, isPremium }:
     }
   }
 
+  async function fillWeek() {
+    setIsFillingWeek(true); setMessage(null);
+    try { const start = new Date(`${plannedFor}T12:00:00`); const created = await Promise.all(Array.from({ length: 7 }, async (_, index) => { const date = new Date(start); date.setDate(start.getDate() + index); const response = await fetch("/api/planner", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ outfitId: outfits[index % outfits.length].id, plannedFor: date.toISOString().slice(0, 10) }) }); const result = await response.json(); if (!response.ok) throw new Error(result.error); return result; })); setPlans((current) => [...current.filter((plan) => !created.some((item) => item.planned_for === plan.plannedFor)), ...created.map((item) => ({ id: item.id, outfitId: item.outfit_id, plannedFor: item.planned_for, outfit: outfitById.get(item.outfit_id)! }))].sort((a, b) => a.plannedFor.localeCompare(b.plannedFor))); setMessage("Your next seven days are planned."); router.refresh(); } catch (error) { setMessage(error instanceof Error ? error.message : "We could not fill the week."); } finally { setIsFillingWeek(false); }
+  }
+
   if (!isPremium) return <section className="mt-10 rounded-3xl border border-[#e5ddd5] bg-[#fcfbf9] p-7"><p className="text-sm font-medium text-[#766b61]">PREMIUM FEATURE</p><h2 className="mt-3 text-2xl font-semibold">Plan the week ahead with confidence.</h2><p className="mt-3 max-w-lg leading-7 text-[#6f655d]">Premium unlocks the outfit planner, so your saved looks are ready when your morning is busy.</p><Button asChild className="mt-6 rounded-xl bg-[#302a25] text-white hover:bg-[#4a4037]"><Link href="/premium">Explore Premium</Link></Button></section>;
   if (!outfits.length) return <p className="mt-10 rounded-3xl border border-dashed border-[#cfc5bb] p-10 text-center text-[#6f655d]">Create a saved outfit with your AI stylist before adding it to the planner.</p>;
 
@@ -66,6 +72,7 @@ export function OutfitPlanner({ outfits, initialPlans, defaultDate, isPremium }:
         <label><span className="mb-2 block text-sm font-medium">Wear it on</span><input required type="date" value={plannedFor} onChange={(event) => setPlannedFor(event.target.value)} className="h-11 w-full rounded-xl border border-[#d7cec5] bg-white px-3" /></label>
         <Button disabled={isSaving} className="h-11 rounded-xl bg-[#302a25] text-white hover:bg-[#4a4037]">{isSaving ? "Saving…" : "Add to planner"}</Button>
       </form>
+      <Button type="button" variant="outline" disabled={isFillingWeek || isSaving} onClick={fillWeek} className="mt-4 rounded-xl">{isFillingWeek ? "Planning your week…" : "Fill the next 7 days"}</Button>
       {message && <p role="status" className="mt-4 rounded-xl bg-[#efe9e1] p-3 text-sm text-[#544b43]">{message}</p>}
       <section className="mt-12">
         <h2 className="text-2xl font-semibold tracking-[-0.03em]">Your planned looks</h2>
