@@ -43,8 +43,10 @@ export default async function DashboardPage() {
 
       <section className="mx-auto max-w-5xl py-16 sm:py-20">
         <p className="text-sm font-medium text-[#766b61]">GOOD MORNING, {(profile?.display_name || email).toUpperCase()}</p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">Your wardrobe, made easy.</h1>
-        <p className="mt-5 max-w-xl text-lg leading-8 text-[#6f655d]">Keep the pieces you love in one place, then turn them into looks you’ll feel good wearing.</p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">{itemCount ? "Your wardrobe, made easy." : "Welcome to Style Set."}</h1>
+        <p className="mt-5 max-w-xl text-lg leading-8 text-[#6f655d]">{itemCount ? "Keep the pieces you love in one place, then turn them into looks you’ll feel good wearing." : "Let’s build your wardrobe. Add a few pieces and Style Set will start creating outfits from clothes you actually own."}</p>
+
+        {!itemCount && <section className="mt-10 rounded-3xl border border-[#e5ddd5] bg-[#fcfbf9] p-7"><p className="text-xs font-medium tracking-[0.14em] text-[#766b61]">YOUR STARTER WARDROBE</p><p className="mt-4 text-4xl font-semibold">0 <span className="text-xl text-[#766b61]">/ 5 pieces added</span></p><ol className="mt-6 space-y-3 text-sm text-[#62594f]"><li>○ Add your first piece</li><li>○ Build your starter wardrobe</li><li>○ Generate your first Style Set</li></ol><Button asChild className="mt-7 rounded-xl bg-[#302a25] text-white hover:bg-[#4a4037]"><a href="/wardrobe">+ Add my first piece</a></Button></section>}
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           <article className="rounded-3xl bg-[#302a25] p-7 text-white">
