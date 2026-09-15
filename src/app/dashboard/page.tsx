@@ -21,7 +21,7 @@ export default async function DashboardPage() {
   if (!claims) redirect("/login");
   const email = typeof claims.email === "string" ? claims.email : "there";
 
-  const [{ count: wardrobeCount }, { data: recentOutfit }] = await Promise.all([
+  const [{ count: wardrobeCount }, { data: recentOutfit }, { data: profile }] = await Promise.all([
     supabase.from("clothing_items").select("id", { count: "exact", head: true }),
     supabase
       .from("outfits")
@@ -29,6 +29,7 @@ export default async function DashboardPage() {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    supabase.from("profiles").select("display_name").maybeSingle(),
   ]);
   const itemCount = wardrobeCount ?? 0;
   const latestLook = recentOutfit as RecentOutfit | null;
@@ -41,7 +42,7 @@ export default async function DashboardPage() {
       </header>
 
       <section className="mx-auto max-w-5xl py-16 sm:py-20">
-        <p className="text-sm font-medium text-[#766b61]">GOOD MORNING, {email.toUpperCase()}</p>
+        <p className="text-sm font-medium text-[#766b61]">GOOD MORNING, {(profile?.display_name || email).toUpperCase()}</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">Your wardrobe, made easy.</h1>
         <p className="mt-5 max-w-xl text-lg leading-8 text-[#6f655d]">Keep the pieces you love in one place, then turn them into looks you’ll feel good wearing.</p>
 
