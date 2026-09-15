@@ -22,7 +22,7 @@ const outfitSchema = z.object({
   score_explanation: z.string().min(1).max(240),
 });
 
-type ClothingItem = { id: string; name: string; category: string; color: string | null; seasons: string[]; occasions: string[]; is_in_laundry: boolean };
+type ClothingItem = { id: string; name: string; category: string; color: string | null; image_path: string | null; seasons: string[]; occasions: string[]; is_in_laundry: boolean };
 
 export async function POST(request: NextRequest) {
   if (!process.env.OPENAI_API_KEY) return NextResponse.json({ error: "AI styling is not configured." }, { status: 503 });
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
   const userId = auth?.claims?.sub;
   if (typeof userId !== "string") return NextResponse.json({ error: "Please sign in again." }, { status: 401 });
 
-  const { data } = await supabase.from("clothing_items").select("id, name, category, color, seasons, occasions, is_in_laundry").order("created_at", { ascending: false });
+  const { data } = await supabase.from("clothing_items").select("id, name, category, color, image_path, seasons, occasions, is_in_laundry").order("created_at", { ascending: false });
   const wardrobe = ((data ?? []) as ClothingItem[]).filter((item) => !item.is_in_laundry);
   if (wardrobe.length < 2) return NextResponse.json({ error: "Add at least two wardrobe items first." }, { status: 422 });
   const { data: profile } = await supabase.from("profiles").select("style_preferences, favorite_colors, style_vibes, avoid_items").maybeSingle();
@@ -63,7 +63,10 @@ export async function POST(request: NextRequest) {
       await supabase.from("outfits").delete().eq("id", outfit.id);
       throw new Error("We could not save the outfit items.");
     }
-    return NextResponse.json({ ...recommendation.data, item_ids: selectedIds, items: selectedIds.map((id) => wardrobeById.get(id)) });
+    const selectedItems = selectedIds.map((id) => wardrobeById.get(id)!);
+    const pairs = await Promise.all(selectedItems.map(async (item) => [item.id, item.image_path ? (await supabase.storage.from("wardrobe").createSignedUrl(item.image_path, 3600)).data?.signedUrl ?? null : null] as const));
+    const imageUrls = new Map(pairs);
+    return NextResponse.json({ ...recommendation.data, outfit_id: outfit.id, item_ids: selectedIds, items: selectedItems.map((item) => ({ ...item, image_url: imageUrls.get(item.id) })) });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "The stylist is unavailable right now." }, { status: 502 });
   }
