@@ -19,6 +19,7 @@ export function AddItemForm() {
   const [category, setCategory] = useState<Category>("top");
   const [color, setColor] = useState("");
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [isAnalysing, setIsAnalysing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -26,7 +27,7 @@ export function AddItemForm() {
   function chooseFile(event: ChangeEvent<HTMLInputElement>) {
     setFile(event.target.files?.[0] ?? null);
     setImagePath(null);
-    setAnalysis(null);
+    setAnalysis(null); setIsEditing(false);
     setMessage(null);
   }
 
@@ -44,7 +45,7 @@ export function AddItemForm() {
       const blob = await response.blob();
       setFile(new File([blob], `wardrobe-${Date.now()}.jpg`, { type: blob.type || "image/jpeg" }));
       setImagePath(null);
-      setAnalysis(null);
+      setAnalysis(null); setIsEditing(false);
     } catch (error) {
       // Closing the native camera sheet is not an error worth showing to the user.
       if (error instanceof Error && !/cancel/i.test(error.message)) setMessage(error.message);
@@ -79,6 +80,7 @@ export function AddItemForm() {
       if (!response.ok) throw new Error(result.error || "We could not analyse that photo.");
       const suggestion = result as Analysis;
       setAnalysis(suggestion);
+      setIsEditing(false);
       setName(suggestion.name);
       setCategory(suggestion.category);
       setColor(suggestion.color);
@@ -104,7 +106,7 @@ export function AddItemForm() {
       const { error } = await supabase.from("clothing_items").insert({ user_id: userId, name, category, color: color || null, image_path: path, seasons: analysis?.seasons ?? [], occasions: analysis?.occasions ?? [], ai_metadata: analysis ?? {} });
       if (error) throw new Error(error.message);
       form.reset();
-      setFile(null); setImagePath(null); setName(""); setCategory("top"); setColor(""); setAnalysis(null);
+      setFile(null); setImagePath(null); setName(""); setCategory("top"); setColor(""); setAnalysis(null); setIsEditing(false);
       router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "We could not add that item.");
@@ -117,11 +119,11 @@ export function AddItemForm() {
     <form onSubmit={save} className="grid gap-4 rounded-3xl border border-[#e5ddd5] bg-[#fcfbf9] p-6 sm:grid-cols-2">
       <label className="sm:col-span-2"><span className="mb-2 block text-sm font-medium">Clothing photo</span><input onChange={chooseFile} accept="image/jpeg,image/png,image/webp" type="file" className="block w-full text-sm" />{Capacitor.isNativePlatform() && <Button type="button" onClick={takePhoto} variant="outline" className="mt-3 rounded-xl">Take or choose a photo</Button>}{file && <span className="mt-2 block text-sm text-[#6f655d]">{file.name}</span>}</label>
       <div className="sm:col-span-2"><Button type="button" onClick={analyse} disabled={!file || isAnalysing || isSaving} variant="outline" className="rounded-xl">{isAnalysing ? "Analysing…" : "✨ Suggest details with AI"}</Button></div>
-      {analysis && <p className="sm:col-span-2 rounded-xl bg-[#efe9e1] p-3 text-sm text-[#544b43]">{analysis.description}</p>}
-      <label><span className="mb-2 block text-sm font-medium">Name</span><input value={name} onChange={(event) => setName(event.target.value)} required maxLength={120} placeholder="Black linen shirt" className="h-11 w-full rounded-xl border border-[#d7cec5] bg-white px-3" /></label>
+      {analysis && !isEditing && <section className="sm:col-span-2 rounded-2xl bg-[#efe9e1] p-5"><p className="text-xs font-medium tracking-[0.14em] text-[#766b61]">WE FOUND</p><h2 className="mt-2 text-xl font-semibold">{analysis.name}</h2><p className="mt-3 text-sm leading-6 text-[#62594f]">Category: {analysis.category} · Colour: {analysis.color} · Season: {analysis.seasons.join(", ") || "All-season"}</p><p className="mt-3 text-sm text-[#62594f]">{analysis.description}</p><div className="mt-5 flex gap-3"><Button type="submit" className="rounded-xl bg-[#302a25] text-white">Looks right ✓</Button><Button type="button" variant="outline" onClick={() => setIsEditing(true)} className="rounded-xl">Edit details</Button></div></section>}
+      {(!analysis || isEditing) && <><label><span className="mb-2 block text-sm font-medium">Name</span><input value={name} onChange={(event) => setName(event.target.value)} required maxLength={120} placeholder="Black linen shirt" className="h-11 w-full rounded-xl border border-[#d7cec5] bg-white px-3" /></label>
       <label><span className="mb-2 block text-sm font-medium">Category</span><select value={category} onChange={(event) => setCategory(event.target.value as Category)} className="h-11 w-full rounded-xl border border-[#d7cec5] bg-white px-3">{categories.map((item) => <option key={item} value={item}>{item[0].toUpperCase() + item.slice(1)}</option>)}</select></label>
       <label><span className="mb-2 block text-sm font-medium">Main colour <em className="font-normal text-[#766b61]">optional</em></span><input value={color} onChange={(event) => setColor(event.target.value)} maxLength={40} placeholder="Black" className="h-11 w-full rounded-xl border border-[#d7cec5] bg-white px-3" /></label>
-      <div className="flex items-end"><Button type="submit" disabled={!file || !name || isSaving || isAnalysing} className="h-11 w-full rounded-xl bg-[#302a25] text-white hover:bg-[#4a4037]">{isSaving ? "Adding…" : "Add to wardrobe"}</Button></div>
+      <div className="flex items-end"><Button type="submit" disabled={!file || !name || isSaving || isAnalysing} className="h-11 w-full rounded-xl bg-[#302a25] text-white hover:bg-[#4a4037]">{isSaving ? "Adding…" : "Add to wardrobe"}</Button></div></>}
       {message && <p role="status" className="sm:col-span-2 rounded-xl bg-[#efe9e1] p-3 text-sm text-[#544b43]">{message}</p>}
     </form>
   );
