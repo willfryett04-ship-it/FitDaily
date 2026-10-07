@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 
-const occasionSchema = z.enum(["casual", "work", "evening", "formal", "active"]);
+const occasionSchema = z.enum(["casual", "uni", "work", "evening", "formal", "active"]);
 const requestSchema = z.object({
   occasion: occasionSchema.default("casual"),
   weather: z.object({
